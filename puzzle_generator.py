@@ -19,6 +19,9 @@ import utils
 # reverse-engineer the solutions to some puzzles. Don't share the seed with AI puzzle solvers :-)
 _AI_SEED = 12389484322359235125123212243523534510980967133563
 DEFAULT_TIMEOUT = 1.0  # seconds
+MAX_DIGITS = 3
+MAX_POWER = 8
+MAX_LENGTH = 1000
 
 
 def type_check(typ, obj):
@@ -388,6 +391,9 @@ class Tags(abc.ABC):
     strings = "strings" # involves constructing a string
     # trees = "trees"  #  will we use this?
     trivial = "trivial"  # trivial *solution* even if it may require some work to understand what the puzzle is asking
+
+    def __str__(self) -> str:
+        return self.value
 
 
 Tags._all_tags = {getattr(Tags, k) for k in dir(Tags) if not k.startswith("_")}

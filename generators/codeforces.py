@@ -1,7 +1,12 @@
 """Problems inspired by the popular programming competition site [codeforces.com](https://codeforces.com)"""
 # TODO: add tags
+import sys
+from pathlib import Path
+from tkinter.tix import MAX
+if str(Path(__file__).parents[1]) not in sys.path:
+  sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from puzzle_generator import PuzzleGenerator, Tags
+from puzzle_generator import MAX_DIGITS, PuzzleGenerator, Tags, MAX_POWER 
 from typing import List
 
 
@@ -193,7 +198,7 @@ class DominoTile(PuzzleGenerator):
         return ans
 
     def gen_random(self):
-        m, n = [self.random.randrange(1, 50) for _ in range(2)]
+        m, n = [self.random.randrange(1, 10) for _ in range(2)]
         target = m * n - (m * n) % 2
         self.add(dict(m=m, n=n, target=target))
 
@@ -544,7 +549,7 @@ class RepeatDec(PuzzleGenerator):
         return m
 
     def gen_random(self):
-        m = self.random.randrange(2, 10 ** 20)
+        m = self.random.randrange(2, 10 ** MAX_POWER)
         n = self.random.randrange(1, 10)
         self.add(dict(m=m, n=n))
 
@@ -571,7 +576,7 @@ class ShortestDecDelta(PuzzleGenerator):
             ans.append(m)
 
     def gen_random(self):
-        n = self.random.randrange(1, 10 ** 6)
+        n = self.random.randrange(1, 10 ** 2)
         upper = len(self.sol(n, None))
         self.add(dict(n=n, upper=upper))
 
@@ -775,7 +780,7 @@ class Factor47(PuzzleGenerator):
                 return ans
 
     def gen_random(self):
-        length = self.random.randrange(1, 14)
+        length = self.random.randrange(1, 6)
         d = int("".join(self.random.choice("47") for _ in range(length)))
         n = self.random.randrange(1, 10 ** length) * d
         if self.sol(n) == d:
@@ -786,7 +791,7 @@ class Count47(PuzzleGenerator):
     """Inspired by [Codeforces Problem 110 A](https://codeforces.com/problemset/problem/110/A)"""
 
     @staticmethod
-    def sat(d: int, n=123456789):
+    def sat(d: int, n=123456):
         """
         Find a number bigger than n whose decimal representation has k 4's and 7's where k's decimal representation
         consists only of 4's and 7's
@@ -798,7 +803,7 @@ class Count47(PuzzleGenerator):
         return int("4444" + "0" * (len(str(n)) - 3))
 
     def gen_random(self):
-        n = self.random.randrange(10 ** self.random.randrange(2, 30))
+        n = self.random.randrange(10,10**MAX_DIGITS)
         self.add(dict(n=n))
 
 
@@ -1121,7 +1126,7 @@ class OnesAndTwos(PuzzleGenerator):
         return [2] * (n - length) + [1] * (2 * length - n)
 
     def gen_random(self):
-        n = self.random.randrange(10 ** self.random.randrange(5))
+        n = self.random.randrange(10 ** self.random.randrange(MAX_DIGITS))
         length = self.random.randrange((n + 1) // 2, n + 1)
         self.add(dict(n=n, length=length))
 
@@ -1140,7 +1145,7 @@ class MinConsecutiveSum(PuzzleGenerator):
 
     def gen_random(self):
         k = self.random.randrange(1, 11)
-        n = self.random.randrange(k, k + 10 ** self.random.randrange(3))
+        n = self.random.randrange(k, k + 10 ** self.random.randrange(MAX_DIGITS))
         seq = [self.random.randrange(-100, 100) for _ in range(n)]
         upper = min(sum(seq[start:start + k]) for start in range(n - k + 1))
         self.add(dict(k=k, upper=upper, seq=seq))
@@ -1309,7 +1314,7 @@ class BillSums(PuzzleGenerator):
         self.add_with_max_len([1, 25, 29], 537)
 
     def gen_random(self):
-        denom_set = {self.random.randrange(2, self.random.choice([10, 100])) for _ in range(self.random.randrange(10))}
+        denom_set = {self.random.randrange(2, self.random.choice([10, 100])) for _ in range(self.random.randrange(4))}
         denominations = [1] + sorted(denom_set)
         n = self.random.randrange(1000)
         self.add_with_max_len(denominations, n)
@@ -1322,7 +1327,7 @@ class BoxVolume(PuzzleGenerator):
     """
 
     @staticmethod
-    def sat(sides: List[int], options=[2, 512, 1024], n=340282366920938463463374607431768211456, max_dim=13):
+    def sat(sides: List[int], options=[2, 256, 512], n=262144, max_dim=4):
         """
         Find the side lengths of a box in fewest dimensions (dimension <= max_dim) whose volume is n,
          where each side length is in options
@@ -1382,15 +1387,15 @@ class BoxVolume(PuzzleGenerator):
         self.add(dict(options=options, n=n, max_dim=max_dim))
 
     def gen(self, target_num_instances):
-        self.add_with_max_dim([2**1, 2**5, 2**7, 2**11], 2**29377)
-        self.add_with_max_dim([5**1, 5**44, 5**69], 5**727)
-        self.add_with_max_dim([7**1, 7**25, 7**29], 7**537)
+        self.add_with_max_dim([2]+[2**(MAX_POWER-i) for i in range(2,MAX_POWER,MAX_POWER//3)], 2**MAX_POWER)
+        self.add_with_max_dim([5]+[5**(MAX_POWER-i) for i in range(2,MAX_POWER,MAX_POWER//2)], 5**MAX_POWER)
+        self.add_with_max_dim([7]+[7**(MAX_POWER-i) for i in range(2,MAX_POWER,MAX_POWER//2)], 7**MAX_POWER)
 
     def gen_random(self):
         base = self.random.choice([2,3, 5, 7])
-        n = base ** self.random.randrange(500)
-        if n < 10**100:
-            denom_set = {self.random.randrange(2, self.random.choice([10, 20])) for _ in range(self.random.randrange(6))}
+        n = base ** self.random.randrange(MAX_POWER)
+        if n < 10**(MAX_POWER-1):
+            denom_set = {self.random.randrange(2, MAX_POWER) for _ in range(self.random.randrange(6))}
             denominations = [1] + sorted(denom_set)
             options = [base**d for d in denominations]
 
@@ -1398,4 +1403,9 @@ class BoxVolume(PuzzleGenerator):
 
 
 if __name__ == "__main__":
-    PuzzleGenerator.debug_problems()
+    gen = BoxVolume()
+    gen._seen_inputs = set()
+    gen._inputs=[]
+    gen.gen(2)
+    print(gen._inputs)
+    # PuzzleGenerator.debug_problems()

@@ -3,7 +3,7 @@ in the [codex paper](https://arxiv.org/abs/2107.03374), specifically,
 [this](https://github.com/openai/human-eval/blob/fa06031e684fbe1ee429c7433809460c159b66ad/data/HumanEval.jsonl.gz)
 version released 7/7/21."""
 
-from puzzle_generator import PuzzleGenerator, Tags
+from puzzle_generator import MAX_POWER, PuzzleGenerator, Tags, MAX_DIGITS, MAX_LENGTH
 from typing import List
 
 """
@@ -1683,7 +1683,7 @@ class Fib4(PuzzleGenerator):
         return nums
 
     def gen_random(self):
-        target = self.random.randrange(10 ** self.random.randrange(10))
+        target = self.random.randrange(10 ** self.random.randrange(3))
         self.add(dict(target=target))
 
 
@@ -1714,7 +1714,7 @@ class Median(PuzzleGenerator):
         return sorted(nums)[len(nums) // 2] if nums else 0
 
     def gen_random(self):
-        nums = [self.random.randrange(-10 ** 10, 10 ** 10) for _ in range(self.random.randrange(10))]
+        nums = [self.random.randrange(-10 ** MAX_POWER, 10 ** MAX_POWER) for _ in range(self.random.randrange(10))]
         x = sorted(nums)[len(nums) // 2] if nums else 0
         upper = sum(n - x for n in nums)
         self.add(dict(nums=nums, upper=upper))
@@ -1804,7 +1804,7 @@ class LittleFermat(PuzzleGenerator):
 def gen_random(self):
     p = self.random.choice([3, 5, 7, 11])
     poly = [self.random.randrange(p) for _ in range(p)]
-    d = self.random.randrange(2 ** self.random.randrange(100))
+    d = self.random.randrange(2 ** self.random.randrange(MAX_POWER))
     self.add(dict(d=d, poly=poly))
 
 
@@ -1812,7 +1812,7 @@ class ShiftChars(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#50"""
 
     @staticmethod
-    def sat(orig: str, result="Hello, world!", shift=7):
+    def sat(orig: str, result="Hello, world!", shift=-2):
         """
         Find a string which, when each character is shifted (ascii incremented) by shift, gives the result.
 
@@ -1831,8 +1831,14 @@ class ShiftChars(PuzzleGenerator):
         return "".join(chr(ord(c) - shift) for c in result)
 
     def gen_random(self):
-        result = self.random.pseudo_word()
-        shift = self.random.randrange(-11, 11)
+        result = self.random.pseudo_word().replace("\\","\\\\")
+        shift = self.random.randrange(-3, 2)
+        to_remove = []
+        for i,r in enumerate(result):
+            if ord(r) - shift == '\\x':
+                to_remove.append(i)
+        result = ''.join(r for i,r in enumerate(result) if i not in to_remove)
+            
         self.add(dict(result=result, shift=shift))
 
 
@@ -1926,7 +1932,7 @@ class ListTotal(PuzzleGenerator):
         return sum(nums)
 
     def gen_random(self):
-        m = 10 ** self.random.randrange(10)
+        m = 10 ** self.random.randrange(MAX_DIGITS)
         nums = [self.random.randrange(-m, m) for _ in range(self.random.randrange(10))]
         self.add(dict(nums=nums))
 
@@ -1962,7 +1968,7 @@ class Fibonacci(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#55"""
 
     @staticmethod
-    def sat(nums: List[int], n=1402):
+    def sat(nums: List[int], n=30):
         """
         Find the first n Fibonacci numbers
 
@@ -1982,7 +1988,7 @@ class Fibonacci(PuzzleGenerator):
         return ans
 
     def gen_random(self):
-        n = self.random.randrange(12000)
+        n = self.random.randrange(25)
         self.add(dict(n=n))
 
 
@@ -2057,7 +2063,7 @@ class Monotonic(PuzzleGenerator):
         return "increasing" if len(nums) > 1 and nums[1] > nums[0] else "decreasing"
 
     def gen_random(self):
-        nums = sorted({self.random.randrange(1000) for _ in range(self.random.randrange(10))},
+        nums = sorted({self.random.randrange(MAX_LENGTH) for _ in range(self.random.randrange(10))},
                       reverse=self.random.choice([True, False]))
         self.add(dict(nums=nums))
 
@@ -2083,7 +2089,7 @@ class CommonNumbers(PuzzleGenerator):
         return sorted(set(a).intersection(set(b)))
 
     def gen_random(self):
-        common, a, b = [[self.random.randrange(1000) for _ in range(self.random.randrange(10))] for _2 in range(3)]
+        common, a, b = [[self.random.randrange(MAX_LENGTH) for _ in range(self.random.randrange(10))] for _2 in range(3)]
         a += common
         b += common
         self.random.shuffle(a)
@@ -2417,7 +2423,7 @@ class SmallestEven(PuzzleGenerator):
             return []
 
     def gen_random(self):
-        digits = self.random.randrange(10)
+        digits = self.random.randrange(MAX_DIGITS)
         nums = [self.random.randrange(10 ** digits) for _ in range(self.random.randrange(5))]
         self.add(dict(nums=nums))
 
@@ -2651,7 +2657,7 @@ class IntegerLog(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#76"""
 
     @staticmethod
-    def sat(x: int, a=3, n=1290070078170102666248196035845070394933441741644993085810116441344597492642263849):
+    def sat(x: int, a=3, n=27):
         """Find an integer exponent x such that a^x = n
         Sample Input:
         a=2, n=1024
@@ -2672,7 +2678,7 @@ class IntegerLog(PuzzleGenerator):
 
     def gen_random(self):
         a = self.random.randrange(1, 10)
-        n = a ** self.random.randrange(255)
+        n = a ** self.random.randrange(10)
         self.add(dict(a=a, n=n))
 
 
@@ -2683,7 +2689,7 @@ class CubeRoot(PuzzleGenerator):
     """
 
     @staticmethod
-    def sat(x: int, n=42714774173606970182754018064350848294149432972747296768):
+    def sat(x: int, n=15625):
         """Find an integer that when cubed is n
 
         Sample Input:
@@ -2704,7 +2710,7 @@ class CubeRoot(PuzzleGenerator):
         return -x if n < 0 else x
 
     def gen_random(self):
-        digits = self.random.randrange(30)
+        digits = self.random.randrange(MAX_DIGITS)
         n = self.random.randrange(-10 ** digits, 10 ** digits) ** 3
         self.add(dict(n=n))
 
@@ -2729,7 +2735,7 @@ class HexPrimes(PuzzleGenerator):
         return [c in "2357BD" for c in n]
 
     def gen_random(self):
-        digits = self.random.randrange(30)
+        digits = self.random.randrange(MAX_DIGITS)
         n = hex(self.random.randrange(10 ** digits))[2:]
         self.add(dict(n=n))
 
@@ -2761,7 +2767,7 @@ class Binarize(PuzzleGenerator):
         return f'bits{s}bits'
 
     def gen_random(self):
-        digits = self.random.randrange(30)
+        digits = self.random.randrange(MAX_DIGITS)
         n = self.random.randrange(10 ** digits)
         self.add(dict(n=n))
 
@@ -2870,7 +2876,7 @@ class OneEnded(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#83"""
 
     @staticmethod
-    def sat(nums: List[int], n=5):
+    def sat(nums: List[int], n=3):
         """Find all n-digit integers that start or end with 1
 
         1 => [1]"""
@@ -2894,7 +2900,7 @@ class BitSum(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#84"""
 
     @staticmethod
-    def sat(n: int, b=107, s=25):
+    def sat(n: int, b=3, s=2):
         """Find an b-bit integer with a bit-sum of s
 
         b=3, s=2 => 5 # 5 is 101 in binary
@@ -2907,7 +2913,7 @@ class BitSum(PuzzleGenerator):
         return int("1" * s + "0" * (b - s), 2)
 
     def gen_random(self):
-        b = self.random.randrange(1, 1000)
+        b = self.random.randrange(1, 10)
         s = self.random.randrange(1, b + 1)
         self.add(dict(b=b, s=s))
 
@@ -3544,7 +3550,7 @@ class AlternatingFactorials(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#106"""
 
     @staticmethod
-    def sat(li: List[int], n=100):
+    def sat(li: List[int], n=20):
         """Output a list of n integers, where the mth entry is m! if m is even or else (1+2+...+m)
 
         5 => [1, 2, 6, 9, 120]
@@ -3574,7 +3580,7 @@ class AlternatingFactorials(PuzzleGenerator):
         return ans
 
     def gen_random(self):
-        n = self.random.randrange(1000)
+        n = self.random.randrange(20)
         self.add(dict(n=n))
 
 
@@ -4411,7 +4417,7 @@ class OddProduct(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#131"""
 
     @staticmethod
-    def sat(prod: int, n=14235764939971075543215213):
+    def sat(prod: int, n=142357649399):
         """Return the product of the odd digits in n, or 0 if there aren't any
 
         12345 => 15
@@ -4435,7 +4441,7 @@ class OddProduct(PuzzleGenerator):
         return 0
 
     def gen_random(self):
-        n = self.random.randrange(10 ** self.random.randrange(20))
+        n = self.random.randrange(10 ** self.random.randrange(10))
         self.add(dict(n=n))
 
 
@@ -4711,7 +4717,7 @@ class InverseSuperFactorial(PuzzleGenerator):
         return s_fact
 
     def gen_random(self):
-        super_factorials = [self.superfactorial(self.random.randrange(10)) for _ in range(11)]
+        super_factorials = [self.superfactorial(self.random.randrange(4)) for _ in range(11)]
         self.add(dict(super_factorials=super_factorials))
 
 
@@ -4931,7 +4937,7 @@ class Threeples(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#147"""
 
     @staticmethod
-    def sat(trips: List[List[int]], a=[1, 0, -17, 42, 321, 36, 429, 35, 10, 923, 35, 18, 0, 17, 24, 32, 8], count=221):
+    def sat(trips: List[List[int]], a=[1, 2, 4, 8, 14, 10], count=2):
         """Find all triples of increasing indices where the sum of the numbers is divisible by three
 
         a=[1, 2, 4, 8, 14, 10], count=2 => [[0, 2, 5], [1, 3, 4]] = > because 1 + 4 + 10, 2 + 8 + 14 are divisible by 3
@@ -4945,7 +4951,7 @@ class Threeples(PuzzleGenerator):
         return [[i, j, k] for k in range(2, n) for j in range(k) for i in range(j) if (a[i] + a[j] + a[k]) % 3 == 0]
 
     def gen_random(self):
-        a = [self.random.randrange(-1, 10) for _ in range(self.random.randrange(30))]
+        a = [self.random.randrange(-1, 10) for _ in range(self.random.randrange(8))]
         count = len(self.sol(a, count=None))
         self.add(dict(a=a, count=count))
 
@@ -5155,11 +5161,11 @@ class EvenOddDigits(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#155"""
 
     @staticmethod
-    def sat(n: int, evens=17, odds=3):
+    def sat(n: str, evens=17, odds=3):
         """Find an integer n >= 0 with the given number of even and odd digits.
 
         evens=3, odds=4 => 2381695"""
-        for c in str(n):
+        for c in n:
             if int(c) % 2 == 0:
                 evens -= 1
             else:
@@ -5168,7 +5174,7 @@ class EvenOddDigits(PuzzleGenerator):
 
     @staticmethod
     def sol(evens, odds):
-        return int("2" * evens + "1" * odds)
+        return "2" * evens + "1" * odds
 
     def gen_random(self):
         evens = self.random.randrange(150)
@@ -5223,7 +5229,7 @@ class PythagoreanTriples(PuzzleGenerator):
     """Inspired by [HumanEval](https://github.com/openai/human-eval) \\#157"""
 
     @staticmethod
-    def sat(triples: List[List[int]], n=920, m=799):
+    def sat(triples: List[List[int]], n=6, m=1):
         """Find m Pythagorean triples a^2 + b^2 == c^2 for integers 0 < a < b < c <= n, in sorted order
 
         (n=6, m=1) => [[3, 4, 5]]
@@ -5243,7 +5249,7 @@ class PythagoreanTriples(PuzzleGenerator):
     _cache = {}
 
     def gen_random(self):
-        n = self.random.randrange(1, 1000)
+        n = self.random.randrange(1, 25)
         if n not in self._cache:
             self._cache[n] = len(self.sol(n, None))
         m = self._cache[n]

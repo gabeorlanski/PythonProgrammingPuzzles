@@ -218,6 +218,7 @@ class TicTacToeX(PuzzleGenerator):
         """
         board_bit_reps = {tuple(sum(1 << i for i in range(9) if b[i] == c) for c in "XO") for b in good_boards}
         win = [any(i & w == w for w in [7, 56, 73, 84, 146, 273, 292, 448]) for i in range(512)]
+        print(win)
 
         def tie(x, o):  # returns True if X has a forced tie/win assuming it's X's turn to move.
             x |= 1 << [i for i in range(9) if (x | (1 << i), o) in board_bit_reps][0]
@@ -327,6 +328,7 @@ class RockPaperScissors(PuzzleGenerator):
         return [1 / 3] * 3
 
 
+
 class Nash(PuzzleGenerator):
     """Computing a [Nash equilibrium](https://en.wikipedia.org/wiki/Nash_equilibrium) for a given
      [bimatrix game](https://en.wikipedia.org/wiki/Bimatrix_game) is known to be
@@ -390,13 +392,12 @@ class Nash(PuzzleGenerator):
         self.add(self.get_example(), multiplier=5)
 
     def gen_random(self):
-        m = self.random.randrange(2, 10)
-        n = self.random.randrange(2, 10)
+        m = self.random.randrange(2, 5)
+        n = self.random.randrange(2, 5)
         A, B = [[[self.random.random() for _i in range(m)] for _j in range(n)] for _k in range(2)]
         eps = self.random.choice([0.5, 0.1, 0.01])
         solved = self.sol(A, B, eps) is not None
         self.add(dict(A=A, B=B, eps=eps), test=solved, multiplier=5)
-
 
 class ZeroSum(PuzzleGenerator):
     """Compute minimax optimal strategies for a given
@@ -425,7 +426,7 @@ class ZeroSum(PuzzleGenerator):
 
     @staticmethod
     def sol(A, eps):
-        MAX_ITER = 10 ** 4
+        MAX_ITER = 10 ** 5
         m, n = len(A), len(A[0])
         a = [0 for _i in range(m)]
         b = [0 for _j in range(n)]
@@ -446,8 +447,8 @@ class ZeroSum(PuzzleGenerator):
                 return [p, q]
 
     def gen_random(self):
-        m = self.random.randrange(2, 10)
-        n = self.random.randrange(2, 10)
+        m = self.random.randrange(2, 5)
+        n = self.random.randrange(2, 5)
         A = [[self.random.random() for _i in range(m)] for _j in range(n)]
         eps = self.random.choice([0.5, 0.1, 0.01])
         test = self.sol(A, eps) is not None

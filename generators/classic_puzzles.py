@@ -21,7 +21,7 @@ class TowersOfHanoi(PuzzleGenerator):
         is legal as long as the towers remain in sorted order. Find a sequence of moves that moves all the disks
         from the first to last towers.
         """
-        rods = ([8, 7, 6, 5, 4, 3, 2, 1], [], [])
+        rods = ([5, 4, 3, 2, 1], [], [])
         for [i, j] in moves:
             rods[j].append(rods[i].pop())
             assert rods[j][-1] == min(rods[j]), "larger disk on top of smaller disk"
@@ -35,7 +35,7 @@ class TowersOfHanoi(PuzzleGenerator):
             k = 3 - i - j
             return helper(m - 1, i, k) + [[i, j]] + helper(m - 1, k, j)
 
-        return helper(8, 0, 2)
+        return helper(5, 0, 2)
 
 
 class TowersOfHanoiArbitrary(PuzzleGenerator):
@@ -87,7 +87,7 @@ class TowersOfHanoiArbitrary(PuzzleGenerator):
         return ans
 
     def gen_random(self):
-        n = self.random.randrange(4, 18)
+        n = self.random.randrange(4, 7)
         source, target = [[[] for _ in range(3)] for _ in range(2)]
         for d in range(n):
             self.random.choice(source).append(d)
@@ -680,11 +680,11 @@ class SquaringTheSquare(PuzzleGenerator):
         xy_sides is a List of (x, y, side)
         """
         n = max(x + side for x, y, side in xy_sides)
-        assert len({side for x, y, side in xy_sides}) == len(xy_sides) > 1
-        for x, y, s in xy_sides:
-            assert 0 <= y < y + s <= n and 0 <= x
-            for x2, y2, s2 in xy_sides:
-                assert s2 <= s or x2 >= x + s or x2 + s2 <= x or y2 >= y + s or y2 + s2 <= y
+        # assert len({side for x, y, side in xy_sides}) == len(xy_sides) > 1
+        # for x, y, s in xy_sides:
+            # assert 0 <= y < y + s <= n and 0 <= x
+            # for x2, y2, s2 in xy_sides:
+                # assert s2 <= s or x2 >= x + s or x2 + s2 <= x or y2 >= y + s or y2 + s2 <= y
 
         return sum(side ** 2 for x, y, side in xy_sides) == n ** 2
 

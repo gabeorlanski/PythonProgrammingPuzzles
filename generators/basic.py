@@ -1,6 +1,6 @@
 """Problems testing basic knowledge -- easy to solve if you understand what is being asked"""
 
-from puzzle_generator import PuzzleGenerator, Tags
+from puzzle_generator import MAX_DIGITS, PuzzleGenerator, Tags
 from typing import List
 
 
@@ -11,7 +11,7 @@ class SumOfDigits(PuzzleGenerator):
     tags = [Tags.math]
 
     @staticmethod
-    def sat(x: str, s=679):
+    def sat(x: str, s=274):
         """Find a number that its digits sum to a specific value."""
         return s == sum([int(d) for d in x])
 
@@ -39,9 +39,9 @@ class FloatWithDecimalValue(PuzzleGenerator):
 
     def gen_random(self):
         v = self.random.randint(0, 9)
-        a = self.random.randint(-10 ** 2, 10 ** 2)
+        a = self.random.randint(-MAX_DIGITS, MAX_DIGITS)
         while a == 0:
-            a = self.random.randint(-10 ** 2, 10 ** 2)
+            a = self.random.randint(-MAX_DIGITS, MAX_DIGITS)
         d = float(10 ** a)
         if not float((v * d) * 1 / d % 10) == v:
             # Some values won't be solved by the reference solution due to Python floats.
@@ -63,9 +63,9 @@ class ArithmeticSequence(PuzzleGenerator):
         return list(range(a, e + 1, s))
 
     def gen_random(self):
-        a = self.random.randint(-10 ** 5, 10 ** 5)
-        e = self.random.randint(a, 10 ** 6)
-        s = self.random.randint(1, 10 ** 4)
+        a = self.random.randint(-10 ** 5, 10 ** 1)
+        e = self.random.randint(a, 10 ** 3)
+        s = self.random.randint(1, 10)
         self.add(dict(a=a, e=e, s=s))
 
 
@@ -74,7 +74,7 @@ class GeometricSequence(PuzzleGenerator):
     tags = [Tags.math]
 
     @staticmethod
-    def sat(x: List[int], a=8, r=2, l=50):
+    def sat(x: List[int], a=8, r=2, l=10):
         """Create a list that is a subrange of an gemoetric sequence."""
         return x[0] == a and len(x) == l and all([x[i] * r == x[i + 1] for i in range(len(x) - 1)])
 
@@ -85,7 +85,7 @@ class GeometricSequence(PuzzleGenerator):
     def gen_random(self):
         a = self.random.randint(-10 ** 3, 10 ** 3)
         r = self.random.randint(1, 10 ** 1)
-        l = self.random.randint(1, 10 ** 3)
+        l = self.random.randint(1, 10)
         self.add(dict(a=a, r=r, l=l))
 
 
@@ -238,7 +238,7 @@ class ListPosSum(PuzzleGenerator):
         return x
 
     def gen_random(self):
-        n = self.random.randint(1, 10 ** 4)
+        n = self.random.randint(1, 10 ** 2)
         s = self.random.randint(n, 10 ** 8)
         self.add(dict(n=n, s=s))
 
@@ -299,7 +299,7 @@ class SublistSum(PuzzleGenerator):
     tags = [Tags.math]
 
     @staticmethod
-    def sat(x: List[int], t=677, a=43, e=125, s=10):
+    def sat(x: List[int], t=100, a=25, e=125, s=25):
         """Sum values of sublist by range specifications"""
         non_zero = [z for z in x if z != 0]
         return t == sum([x[i] for i in range(a, e, s)]) and len(set(non_zero)) == len(non_zero) and all(
@@ -311,6 +311,7 @@ class SublistSum(PuzzleGenerator):
         for i in range(a, e, s):
             x[i] = i
         correction = t - sum(x) + x[i]
+
         if correction in x:
             x[correction] = -1 * correction
             x[i] = 3 * correction
@@ -319,9 +320,9 @@ class SublistSum(PuzzleGenerator):
         return x
 
     def gen_random(self):
-        t = self.random.randint(1, 10 ** 8)
+        t = self.random.randint(1, 500)
         a = self.random.randint(1, 100)
-        e = self.random.randint(a, 10 ** 4)
+        e = self.random.randint(a+1, 10 ** 2)
         s = self.random.randint(1, 10)
         self.add(dict(t=t, a=a, e=e, s=s))
 
@@ -345,11 +346,11 @@ class CumulativeSum(PuzzleGenerator):
 
     @staticmethod
     def sol(t, n):
-        return [1] * n + [t]
+        return [1]*n + [t]
 
     def gen_random(self):
-        n = self.random.randint(1, 10 ** 4)
-        t = self.random.randint(n, 10 ** 10)
+        n = self.random.randint(1, 10)
+        t = self.random.randint(n, 10 ** 2)
         self.add(dict(t=t, n=n))
 
 
@@ -433,7 +434,7 @@ class EngineerNumbers(PuzzleGenerator):
     tags = [Tags.trivial, Tags.strings]
 
     @staticmethod
-    def sat(ls: List[str], n=100, a='bar', b='foo'):
+    def sat(ls: List[str], n=10, a='bar', b='foo'):
         """
         Find a list of n strings, in alphabetical order, starting with a and ending with b.
         """
@@ -445,7 +446,7 @@ class EngineerNumbers(PuzzleGenerator):
 
     def gen_random(self):
         a, b = sorted(self.random.pseudo_word() for _ in range(2))
-        n = self.random.randrange(2, 100)
+        n = self.random.randrange(2, 10)
         if a != b:
             self.add(dict(n=n, a=a, b=b))
 

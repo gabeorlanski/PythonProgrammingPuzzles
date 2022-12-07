@@ -1,6 +1,6 @@
 """Probability problems"""
 
-from puzzle_generator import PuzzleGenerator, Tags
+from puzzle_generator import MAX_DIGITS, PuzzleGenerator, Tags
 from typing import List
 
 
@@ -142,7 +142,7 @@ class ExponentialProbability(PuzzleGenerator):
     """See [Exponential distribution](https://en.wikipedia.org/wiki/Exponential_distribution)"""
 
     @staticmethod
-    def sat(p_stop: float, steps=10, target_prob=0.5):
+    def sat(p_stop: float, steps=5, target_prob=0.5):
         """
         Find p_stop so that the probability of stopping in steps or fewer time steps is the given target_prob if you
         stop each step with probability p_stop
@@ -155,7 +155,7 @@ class ExponentialProbability(PuzzleGenerator):
         return 1 - (1 - target_prob) ** (1.0/steps)
 
     def gen_random(self):
-        steps = self.random.randrange(1, 100)
+        steps = self.random.randrange(1, 5)
         target_prob = self.random.random()
         self.add(dict(steps=steps, target_prob=target_prob))
 

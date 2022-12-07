@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 import time
 import sys
 import inspect
@@ -202,15 +203,16 @@ def main(args):
         print("Didn't make dataset because there are `Problem.Debug` problems, remove the `.Debug` to proceed.")
         return
 
-    try:
-        last_version = utils.load_json(args.json)
-        already_tested_cache = {puz["sat"]: {sb for sb in puz["sol_bodies"]} for puz in last_version}
-    except:
-        already_tested_cache = {}
+    # try:
+    #     last_version = utils.load_json(args.json)
+    #     already_tested_cache = {puz["sat"]: {sb for sb in puz["sol_bodies"]} for puz in last_version}
+    # except:
+    already_tested_cache = {}
 
     utils.info(f"Using {len(already_tested_cache):,} last puzzle testings for speeding up (to avoid re-testing)")
 
     gens = puzzle_generator.PuzzleGenerator.subclass_descendents()
+    # gens = list(filter(lambda c: c.__name__ == 'ShiftChars', gens))
 
     gens_by_module = utils.inv_dict({g: g.__module__.replace("generators.", "") + ".py" for g in gens})
 
@@ -219,23 +221,26 @@ def main(args):
     puzzles = []
     summaries = {}
 
+
     for module_name, gens in gens_by_module.items():  # order determined by generators/__init__.py
         module_multiplier = 0.2 if "trivial" in module_name else 1.0
         readme_examples = []
         for cls in gens:
             gen = cls()
+            # module_name = Path(inspect.getfile(cls)).stem
             gen.build(args.target_num_per_problem, already_tested_cache)
             instances = [
                 {
-                    "name": i.name,
+                    "name": f'{i.name}',
                     "sat": i.src,
                     "ans_type": gen.ans_type,
                     "sol_header": i.sol_header,
                     "sol_docstring": gen.docstring,
                     "sol_bodies": i.sol_bodies,
-                    "module": module_name,
+                    "module": module_name.replace('.py',''),
                     "notes": gen.desc,
-                    "weight": i.multiplier * module_multiplier
+                    "weight": i.multiplier * module_multiplier,
+                    "tags":[str(t) for t in gen.tags]
                 }
                 for i in gen.instances]
             puzzles.extend(instances)

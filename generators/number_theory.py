@@ -139,7 +139,7 @@ class LCM_multi(PuzzleGenerator):
 
     def gen_random(self):
         k = self.random.randrange(2, 12)  # number of factors
-        factor, *rs = [1 + self.random.randrange(10 ** self.random.randrange(10)) for _ in range(k + 1)]
+        factor, *rs = [1 + self.random.randrange(10 ** self.random.randrange(4)) for _ in range(k + 1)]
         nums = [r * factor for r in rs]
         upper_bound = int(self.sol(nums, None) * (1 + self.random.random()))
         self.add(dict(nums=nums, upper_bound=upper_bound))
@@ -428,6 +428,8 @@ class Znam(PuzzleGenerator):
         while self.num_generated_so_far() < target_num_instances:
             self.add(dict(k=k), test=k < 18)
             k += 1
+            if k == 8:
+                break
 
 
 class CollatzCycleUnsolved(PuzzleGenerator):

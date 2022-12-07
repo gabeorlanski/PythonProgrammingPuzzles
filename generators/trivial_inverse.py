@@ -360,7 +360,7 @@ class StrParts(PuzzleGenerator):
 
 class ListSetLen(PuzzleGenerator):
     @staticmethod
-    def sat(li: List[int], dups=42155):
+    def sat(li: List[int], dups=50):
         """Find a list with a certain number of duplicate items"""
         return len(set(li)) == len(li) - dups
 
@@ -369,7 +369,7 @@ class ListSetLen(PuzzleGenerator):
         return [1] * (dups + 1)
 
     def gen_random(self):
-        self.add(dict(dups=self.random.randrange(10 ** 5)))
+        self.add(dict(dups=self.random.randrange(10 ** 2)))
 
 
 class ListMul(PuzzleGenerator):
@@ -478,7 +478,7 @@ class ListIndex(PuzzleGenerator):
         return li[index]
 
     def gen_random(self):
-        li = [self.random.randrange(-10 ** 2, 10 ** 2) for _ in range(self.random.randrange(1, 20))]
+        li = [self.random.randrange(-10 ** 2, 10 ** 2) for _ in range(self.random.randrange(1, 10))]
         i = self.random.randrange(len(li))
         index = li.index(li[i])
         self.add(dict(li=li, index=index))
@@ -619,7 +619,7 @@ class IntDiv(PuzzleGenerator):
                 return n
 
     def gen_random(self):
-        m = 10 ** 16
+        m = 10 ** 10
         n = self.random.randint(-m, m)
         b = self.random.randint(-m, m)
         if n != 0:
@@ -638,7 +638,7 @@ class IntDiv2(PuzzleGenerator):
         return a * b
 
     def gen_random(self):
-        m = 10 ** 16
+        m = 10 ** 8
         a = self.random.randint(-m, m)
         b = self.random.randint(-m, m)
         if b != 0:
